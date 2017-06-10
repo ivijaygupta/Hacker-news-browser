@@ -1,0 +1,166 @@
+<html lang="en" style="min-width: 650px; max-width: 650px; min-height: 900px">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="js/app.min.js"></script>
+        <link href="css/app.css" rel="stylesheet">
+    </head>
+    <body ng-app="myApp" ng-controller="MainController" ng-class="{'hn_freeze-window' : isCommentShow}">
+        <div id="hn_wrapper">
+            <!-- Header Starts -->
+            <div class="hn_header">
+                <div class="hn_search-logo">
+                    <img src="img/icons/icon-48-white.png" alt="">
+                    <div class="nh_search-input">
+                        <svg class="hn_icon" width="55px" height="57px" viewBox="0 0 55 57">
+                            <use xlink:href="#icon-search"></use>
+                        </svg>
+                        <input type="text" id="hn_search" placeholder="Search stories.." ng-model="hn_search" tabindex="-1">
+                    </div>
+                </div>
+                <ul>
+                    <li>
+                        <a href="#" class="active" ng-click="showHNData('Stories', 'https://hn.algolia.com/api/v1/search_by_date?tags=front_page&hitsPerPage=30');">
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="showHNData('New Stories', 'https://hn.algolia.com/api/v1/search_by_date?tags=(story,polls)&hitsPerPage=30');">
+                            New
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="showTopStories()">
+                            Hot Stories
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="showHNData('Ask Hacker News', 'https://hn.algolia.com/api/v1/search_by_date?tags=ask_hn&hitsPerPage=30');">
+                            Ask
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="showHNData('Show', 'https://hn.algolia.com/api/v1/search_by_date?tags=show_hn&hitsPerPage=30');">
+                            Show
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+
+            <!-- Content starts -->
+            <div class="hn_content" ng-cloak>
+
+                <h3 class="hn_content__title">{{title}}</h3>
+
+                <ul class="hn_news">
+                    <li ng-repeat="item in data.hits" ng-hide="!item.title || !item.url">
+                        <div ng-show="!item.title">No results found :(</div>
+                        <div class="hn_news__content">
+                            <h2 class="hn_ellipsis"><a href="{{item.url}}" target="_blank">{{item.title}}</a></h2>
+                            <div class="hn_news__meta">
+                                <div>
+                                    <svg class="hn_icon" width="466px" height="463px" viewBox="0 0 466 463">
+                                        <use xlink:href="#icon-time"></use>
+                                    </svg>
+                                    <span am-time-ago="item.created_at"></span>
+                                    <span class="nh_news__author">by <a href="https://news.ycombinator.com/user?id={{item._highlightResult.author.value}}" target="_blank">{{item.author}}</a></span>
+                                </div>
+                                <div>
+                                    <svg class="hn_icon" width="612px" height="612px" viewBox="0 0 612 612">
+                                        <use xlink:href="#icon-upvote"></use>
+                                    </svg>
+                                    <span>{{item.points}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hn_news__comment" ng-click="showComment(item.objectID);">
+                            {{item.num_comments}}
+                            <span>Comments</span>
+                        </div>
+
+                        <a href="javascript:void(0)" class="hn_share__show">
+                            <img src="img/share.svg" width="14">
+                            <span>Share</span>
+                        </a>
+                        <a href="javascript:void(0)" class="hn_share__hide">
+                            <img src="img/cancel-music.svg" width="10">
+                            <span>Close</span>
+                        </a>
+
+                        <div class="hn_share">
+                            <a href="https://getpocket.com/edit?url={{item.url}}">
+                                <img src="img/pocket.svg" alt="Add to Pocket">
+                            </a>
+                             <a target="_blank" href="https://twitter.com/intent/tweet?text={{item.title}}. Link - {{item.url}}">
+                                 <img src="img/twitter.svg" alt="Share on Twitter">
+                             </a>
+                        </div>
+                    </li>
+                </ul>
+                <div class="hn_comments" ng-show="isCommentShow">
+                    <div class="hn_comments__header">
+                        <h3>All Comments</h3>
+                        <a href="#" ng-click="isCommentShow = false">Close</a>
+                    </div>
+                    <ul>
+                        <li ng-repeat="item in comment.hits">
+                            <div class="hn_comments__meta">
+                                <a href="https://news.ycombinator.com/user?id={{item._highlightResult.author.value}}" target="_blank">{{item.author}}</a>
+                                <span am-time-ago="item.created_at"></span>
+                            </div>
+                            <div class="hn_comments__text" ng-bind-html="item.comment_text"></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        <!--
+        Common icons
+        =======================================
+         -->
+        <div style="display: none;">
+            <svg width="612px" height="612px" viewBox="0 0 612 612" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g id="icon-upvote" stroke-width="1" fill-rule="evenodd">
+                    <g id="Right" fill-rule="nonzero">
+                        <path d="M166.596631,347.548417 L166.681558,347.611284 C161.492213,353.263865 158.265003,360.688875 158.265003,368.936681 C158.265003,386.401778 172.440022,400.5779 189.906222,400.5779 C199.145572,400.5779 207.371319,396.569806 213.151841,390.26318 L213.236768,390.326048 L305.921451,289.20275 L398.629296,390.327151 L398.71312,390.264283 C404.471584,396.570909 412.698433,400.579003 421.937784,400.579003 C439.403984,400.579003 453.579003,386.403984 453.579003,368.937784 C453.579003,360.689978 450.351792,353.264968 445.184506,347.612387 L445.26833,347.54952 L329.251997,220.986849 C323.239857,214.468458 314.802345,210.734997 305.922554,210.734997 C297.042763,210.734997 288.604148,214.468458 282.593111,220.986849 L166.596631,347.548417 Z M306,0 C137.012,0 0,137.012 0,306 C0,474.988 137.012,612 306,612 C474.988,612 612,474.988 612,306 C612,137.012 474.988,0 306,0 Z M305.625,554.25 C168.537,554.25 57,442.713 57,305.625 C57,168.537 168.537,57 305.625,57 C442.713,57 554.25,168.537 554.25,305.625 C554.25,442.713 442.713,554.25 305.625,554.25 Z" id="Shape"></path>
+                    </g>
+                </g>
+            </svg>
+
+            <svg width="466px" height="463px" viewBox="0 0 466 463" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g id="icon-time" stroke-width="1" fill-rule="evenodd">
+                    <path d="M279.591,422.714 C275.755,423.67 271.844,424.519 267.962,425.234 C257.814,427.121 251.105,436.881 252.982,447.038 C253.909,452.035 256.747,456.197 260.6,458.914 C264.571,461.709 269.625,462.971 274.775,462.013 C279.398,461.155 284.057,460.146 288.629,459.005 C298.65,456.511 304.755,446.359 302.255,436.343 C299.761,426.318 289.618,420.218 279.591,422.714 Z" id="Shape" fill-rule="nonzero"></path>
+                    <path d="M417.887,172.047 C419.197,175.995 421.698,179.218 424.857,181.445 C429.541,184.744 435.67,185.854 441.519,183.92 C451.325,180.664 456.638,170.09 453.394,160.289 C451.916,155.821 450.276,151.339 448.529,146.975 C444.693,137.385 433.815,132.716 424.22,136.552 C414.635,140.386 409.964,151.267 413.803,160.86 C415.271,164.528 416.646,168.293 417.887,172.047 Z" id="Shape" fill-rule="nonzero"></path>
+                    <path d="M340.36,396.013 C337.061,398.191 333.656,400.299 330.226,402.274 C321.277,407.436 318.212,418.875 323.372,427.82 C324.773,430.253 326.639,432.242 328.788,433.762 C334.557,437.821 342.392,438.429 348.915,434.671 C352.993,432.319 357.048,429.817 360.977,427.219 C369.591,421.528 371.962,409.925 366.268,401.307 C360.575,392.686 348.977,390.318 340.36,396.013 Z" id="Shape" fill-rule="nonzero"></path>
+                    <path d="M465.022,224.279 C464.615,213.957 455.921,205.923 445.596,206.326 C435.284,206.733 427.244,215.43 427.649,225.748 C427.804,229.693 427.844,233.697 427.753,237.638 C427.608,244.111 430.774,249.881 435.694,253.349 C438.625,255.413 442.182,256.662 446.039,256.75 C456.361,256.979 464.915,248.792 465.144,238.465 C465.247,233.756 465.208,228.985 465.022,224.279 Z" id="Shape" fill-rule="nonzero"></path>
+                    <path d="M414.835,346.816 C406.558,340.606 394.848,342.292 388.649,350.554 C386.275,353.718 383.775,356.843 381.215,359.852 C374.525,367.712 375.47,379.518 383.33,386.213 C383.778,386.593 384.231,386.942 384.701,387.27 C392.515,392.779 403.375,391.513 409.693,384.099 C412.75,380.509 415.73,376.776 418.567,372.997 C424.767,364.735 423.089,353.017 414.835,346.816 Z" id="Shape" fill-rule="nonzero"></path>
+                    <path d="M442.325,279.213 C432.47,276.123 421.975,281.609 418.887,291.464 C417.705,295.229 416.395,299.012 414.981,302.717 C411.876,310.873 414.851,319.847 421.671,324.656 C422.922,325.535 424.3,326.28 425.797,326.846 C435.446,330.528 446.251,325.687 449.929,316.034 C451.608,311.629 453.166,307.128 454.575,302.652 C457.66,292.795 452.178,282.303 442.325,279.213 Z" id="Shape" fill-rule="nonzero"></path>
+                    <path d="M197.999,425.402 C181.279,422.4 165.24,417.288 150.031,410.158 C149.851,410.064 149.69,409.957 149.501,409.871 C145.917,408.184 142.339,406.377 138.871,404.489 C138.859,404.475 138.837,404.466 138.818,404.458 C132.455,400.954 126.245,397.077 120.212,392.83 C32.24,330.86 11.088,208.872 73.062,120.901 C86.538,101.779 102.846,85.826 121.027,73.182 C121.251,73.026 121.475,72.871 121.697,72.714 C185.764,28.57 272.757,25.595 340.786,70.957 L326.175,92.068 C322.113,97.944 324.612,102.226 331.723,101.586 L395.19,95.904 C402.31,95.264 406.568,89.105 404.653,82.229 L387.61,20.823 C385.702,13.939 380.817,13.115 376.751,18.99 L362.106,40.151 C312.182,6.638 252.303,-6.141 192.87,4.165 C186.884,5.201 180.982,6.469 175.161,7.945 C175.116,7.953 175.08,7.958 175.044,7.966 C174.819,8.021 174.591,8.094 174.372,8.155 C123.122,21.316 78.407,51.207 46.5,93.855 C46.231,94.174 45.954,94.486 45.7,94.833 C44.639,96.262 43.586,97.724 42.555,99.186 C40.869,101.582 39.207,104.038 37.617,106.494 C37.418,106.79 37.266,107.091 37.092,107.39 C10.762,148.191 -1.938,195.361 0.24,243.383 C0.245,243.541 0.236,243.7 0.24,243.862 C0.451,248.553 0.823,253.309 1.328,257.991 C1.355,258.293 1.422,258.579 1.473,258.881 C1.995,263.589 2.65,268.308 3.471,273.026 C11.815,321.164 34.523,364.481 68.55,398.186 C68.629,398.265 68.711,398.351 68.791,398.433 C68.819,398.464 68.85,398.48 68.877,398.509 C78.019,407.526 87.963,415.866 98.67,423.407 C126.69,443.151 157.891,456.202 191.399,462.215 C201.566,464.042 211.278,457.274 213.102,447.112 C214.925,436.943 208.163,427.223 197.999,425.402 Z" id="Shape" fill-rule="nonzero"></path>
+                    <path d="M221.124,82.198 C212.761,82.198 205.987,88.978 205.987,97.329 L205.987,248.076 L343.857,319.347 C346.076,320.496 348.452,321.037 350.79,321.037 C356.266,321.037 361.555,318.055 364.244,312.852 C368.079,305.426 365.177,296.303 357.751,292.468 L236.244,229.65 L236.244,97.329 C236.243,88.978 229.477,82.198 221.124,82.198 Z" id="Shape" fill-rule="nonzero"></path>
+                </g>
+            </svg>
+
+            <!-- Icon Search -->
+
+            <svg width="55px" height="57px" viewBox="0 0 55 57" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <defs></defs>
+                <g id="icon-search" stroke-width="1" fill-rule="evenodd">
+                    <g id="search" transform="translate(-1.000000, 0.000000)" fill-rule="nonzero">
+                        <path d="M55.146,51.887 L41.588,37.786 C45.074,33.642 46.984,28.428 46.984,23 C46.984,10.318 36.666,0 23.984,0 C11.302,0 0.984,10.318 0.984,23 C0.984,35.682 11.302,46 23.984,46 C28.745,46 33.282,44.564 37.161,41.838 L50.822,56.046 C51.393,56.639 52.161,56.966 52.984,56.966 C53.763,56.966 54.502,56.669 55.063,56.129 C56.255,54.982 56.293,53.08 55.146,51.887 Z M23.984,6 C33.358,6 40.984,13.626 40.984,23 C40.984,32.374 33.358,40 23.984,40 C14.61,40 6.984,32.374 6.984,23 C6.984,13.626 14.61,6 23.984,6 Z" id="Shape"></path>
+                    </g>
+                </g>
+            </svg>
+        </div>
+
+        <!--
+        END Common icons
+        =======================================
+         -->
+
+         <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+
+
+    </body>
+</html>
